@@ -24,6 +24,7 @@ def getThresoldValue():
     while (True):
         ret,frame = cap.read()
         hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        hsv = cv2.GaussianBlur(hsv, (5, 5), 0)
 
         hMin = cv2.getTrackbarPos('hMin','Video')
         sMin = cv2.getTrackbarPos('sMin','Video')
@@ -33,6 +34,7 @@ def getThresoldValue():
         vMax = cv2.getTrackbarPos('vMax','Video')
 
         mask = cv2.inRange(hsv,(hMin,sMin,vMin),(hMax,sMax,vMax))
+        cv2.imshow('Video',mask)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             cap.release()
@@ -40,25 +42,71 @@ def getThresoldValue():
             print ("Success")
             break
 
-    minValues = np.array([hMin,sMin,vMin])
-    MaxValues = np.array([hMax,sMax,vMax])
+    minValues = [hMin,sMin,vMin]
+    MaxValues = [hMax,sMax,vMax]
 
     return (minValues,MaxValues)
 
 ##########################################################################################
+##########################---detectContours---############################################
+
+def detectContours(objMin,objMax):
+    minCntArea = 20
+
+    cap = cv2.VideoCapture(0)
+    ret,frame = cap.read()
+    
+    hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = cv2.GaussianBlur(hsv, (5, 5), 0)
+
+    mask = cv2.inRange(hsv,objMin,objMax)
+
+    (cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+    for cnt in cntSet:
+        if (cv2.contourArea(cnt)<minCntArea):
+            cntSet.remove(cnt)
+
+    cv2.drawContours(mask,cntSet,-1,(0,255,0), 3)
+    cv2.imshow('mask',mask)
+
+    if cv2.waitKey(0) & 0xFF == ord('q'):
+            cap.release()
+            cv2.destroyAllWindows()
+
+    return (mask, cntSet)
+
+##########################################################################################
+##########################---findCentroid---##############################################
+
+def findCentroid(cnt):
+    M = cv2.moments(cnt)
+    cx = int(M['m10']/M['m00'])
+    cy = int(M['m01']/M['m00'])
+    return (np.array([cx,cy]))
+
+##########################################################################################
 ##########################---locateResources---###########################################
 
-def locateResources(resMin,resMax):
-    cap = cv2.VideoCapture(0)
+def locateResources(resMin , resMaxin):
+    mask, cntSet = detectContours(resMin , resMaxin)
 
-    while (True):
-        ret,frame = cap.read()
-        hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    resList = []
 
-        mask = cv2.inRange(hsv,resMin,resMax)
+    for cnt in cntSet:
+        centroid = findCentroid(cnt)
+        
+        peri = cv2.arcLength(cnt, True)
+        poly = cv2.approxPolyDP(cnt, 0.15 * peri, True)
 
-        #contour detection algo
-
+        if len(poly)==4:
+            resType = 'f'
+            res = [centroid,resType]
+            resList.append(res)
+        elif len(poly)==3:
+            resType = 'w'
+            res = [centroid,resType]
+            resList.append(res)
 
 ##########################################################################################
 #####################################---MAIN---###########################################
@@ -70,6 +118,14 @@ def main():
     bbMin , bbMin = getThresoldValue()
 
     resources = locateResources(resMin , resMax)
+
+    ###locating town center
+    cap = cv2.VideoCapture(0)
+    ret,frame = cap.read()
+
+
+##########################################################################################
+##########################################################################################
 
 if __name__ == '__main__':
     main()
