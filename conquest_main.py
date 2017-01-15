@@ -42,8 +42,8 @@ def getThresoldValue():
             print ("Success")
             break
 
-    minValues = [hMin,sMin,vMin]
-    MaxValues = [hMax,sMax,vMax]
+    minValues = np.array([hMin,sMin,vMin])
+    MaxValues = np.array([hMax,sMax,vMax])
 
     return (minValues,MaxValues)
 
@@ -61,7 +61,7 @@ def detectContours(objMin,objMax):
 
     mask = cv2.inRange(hsv,objMin,objMax)
 
-    (cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    (_, cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     for cnt in cntSet:
         if (cv2.contourArea(cnt)<minCntArea):
@@ -113,15 +113,20 @@ def locateResources(resMin , resMaxin):
 
 def main():
     resMin , resMax = getThresoldValue()
-    tcMin , tcMax = getThresoldValue()
-    bfMin , bfMin = getThresoldValue()
-    bbMin , bbMin = getThresoldValue()
+##    tcMin , tcMax = getThresoldValue()
+##    bfMin , bfMin = getThresoldValue()
+##    bbMin , bbMin = getThresoldValue()
 
     resources = locateResources(resMin , resMax)
 
     ###locating town center
     cap = cv2.VideoCapture(0)
     ret,frame = cap.read()
+    hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    hsv = cv2.GaussianBlur(hsv, (5, 5), 0)
+    mask = cv2.inRange(hsv,tcMin,tcMax)
+
+    tcCenter = findCentroid(mask)
 
 
 ##########################################################################################
