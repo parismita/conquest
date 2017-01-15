@@ -1,3 +1,6 @@
+def nothing(x):
+    pass
+
 def getThresoldValue():
     cv2.namedWindow('Video')
     cv2.createTrackbar('hMax', 'Video', 179, 179,nothing)
