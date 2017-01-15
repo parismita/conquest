@@ -1,3 +1,6 @@
+import findGeometricStuff
+
+
 def locateResources(resMin , resMaxin):
     mask, cntSet = detectContours(resMin , resMaxin)
 
