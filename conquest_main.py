@@ -7,7 +7,6 @@ import cv2
 ##########################################################################################
 #####################################---MAIN---###########################################
 
-
 resMin , resMax = getThresoldValue()
 ##    tcMin , tcMax = getThresoldValue()
 ##    bfMin , bfMin = getThresoldValue()
