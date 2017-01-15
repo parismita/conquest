@@ -1,3 +1,6 @@
+import numpy as np
+import cv2
+
 def detectContours(objMin,objMax):
     minCntArea = 20
 
