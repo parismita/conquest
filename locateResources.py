@@ -1,4 +1,4 @@
-import findGeometricStuff
+import findGeometricStuff,numpy,cv2
 
 
 def locateResources(resMin , resMaxin):
