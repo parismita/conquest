@@ -1,3 +1,3 @@
 # conquest
 
-Repository for Conquest, Ktj, IIT KGP
+Repository for a autonomous Object collecting bot
