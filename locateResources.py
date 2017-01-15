@@ -1,5 +1,5 @@
-import findGeometricStuff,numpy,cv2
-
+import findGeometricStuff,cv2
+import numpy as np
 
 def locateResources(resMin , resMaxin):
     mask, cntSet = detectContours(resMin , resMaxin)
