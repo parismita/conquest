@@ -109,7 +109,7 @@ def detectContours(objMin,objMax):
 
     for cnt in cntSet:
         if (cv2.contourArea(cnt)<minCntArea):
-            cntSet.remove(cnt)
+            cntSet = np.delete(cntSet,cnt)
 
     cv2.drawContours(mask,cntSet,-1,(0,255,0), 3)
     cv2.imshow('mask',mask)
