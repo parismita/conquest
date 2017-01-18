@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-import math
+import math,sys
 
 ##################################################################################################################################################
 
@@ -76,6 +76,9 @@ def locateResources(resMin , resMax):
 
 def distFromTC(res):
     tcCenter = locateTC()
+    if tcCenter == [-1,-1]:
+        print "no tcCenter"
+        dist = sys.maxint
     resCenter = res[0]
     dist = ((resCenter[0]-tcCenter[0])**2 + (resCenter[0] - tcCenter[0])**2)**0.5
     return (dist*2)
@@ -107,16 +110,18 @@ def detectContours(objMin,objMax):
 
     (_, cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
+
     for cnt in cntSet:
         if (cv2.contourArea(cnt)<minCntArea):
-            cntSet.remove(cnt)
+            cntSet = np.delete(cntSet,cnt)
+
 
     cv2.drawContours(mask,cntSet,-1,(0,255,0), 3)
     cv2.imshow('mask',mask)
 
     if cv2.waitKey(0) & 0xFF == ord('q'):
-            cap.release()
-            cv2.destroyAllWindows()
+        cap.release()
+        cv2.destroyAllWindows()
 
     return (mask, cntSet)
 
@@ -136,21 +141,19 @@ def findCentroid(cnt):
 
 ##################################################################################################################################################
 
-def main():
-    resMin , resMax = getThresoldValue()
-    global tcMin, tcMax
-    tcMin , tcMax = getThresoldValue()
-    ##    bfMin , bfMin = getThresoldValue()
-    ##    bbMin , bbMin = getThresoldValue()
 
-    resources = locateResources(resMin , resMax)
+resMin , resMax = getThresoldValue()
+global tcMin, tcMax
+tcMin , tcMax = getThresoldValue()
+##    bfMin , bfMin = getThresoldValue()
+##    bbMin , bbMin = getThresoldValue()
 
-    ###locating town center
+resources = locateResources(resMin , resMax)
+print resources
+
+###locating town center
 
 
 
 ############################################################################################
 ############################################################################################
-
-if __name__ =='__main__':
-    main()
