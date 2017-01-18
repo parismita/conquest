@@ -126,7 +126,7 @@ def next_move(pacman,food,grid):
         print x, y
 #pacman_x, pacman_y = [ int(i) for i in raw_input().strip().split() ]
 #food_x, food_y = [ int(i) for i in raw_input().strip().split() ]
-x,y = [ int(i) for i in raw_input().strip().split() ]
+#x,y = [ int(i) for i in raw_input().strip().split() ]
  
 grid = ones((120,120),dtype=int)
 map1=conquest_main.cntSet[0]
