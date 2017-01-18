@@ -76,7 +76,7 @@ def locateResources(resMin , resMax):
 
 def distFromTC(res):
     tcCenter = locateTC()
-    if tcCenter == [-1,-1]:
+    if tcCenter[0] == -1:
         print "no tcCenter"
         dist = sys.maxint
     resCenter = res[0]
