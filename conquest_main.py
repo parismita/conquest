@@ -62,21 +62,22 @@ def locateResources(resMin , resMax):
         poly = cv2.approxPolyDP(cnt, 0.15 * peri, True)
 
         if len(poly)==4:
-            resType = 'f'
+            resType = 1
             res = [centroid,resType]
             resList.append(res)
         elif len(poly)==3:
-            resType = 'w'
+            resType = 2
             res = [centroid,resType]
             resList.append(res)
 
-    sorted(resList, key = distFromTC)
+    lis = sorted(resList, key = distFromTC)
+    return lis
             
 ##################################################################################################################################################
 
 def distFromTC(res):
     tcCenter = locateTC()
-    if tcCenter == [-1,-1]:
+    if tcCenter[0] == -1:
         print "no tcCenter"
         dist = sys.maxint
     resCenter = res[0]
@@ -98,7 +99,7 @@ def locateTC():
 ##################################################################################################################################################
 
 def detectContours(objMin,objMax):
-    minCntArea = 20
+    minCntArea = 50
 
     cap = cv2.VideoCapture(0)
     ret,frame = cap.read()
@@ -108,7 +109,7 @@ def detectContours(objMin,objMax):
 
     mask = cv2.inRange(hsv,objMin,objMax)
 
-    (_, cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    (mask, cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
 
     for cnt in cntSet:
@@ -116,7 +117,7 @@ def detectContours(objMin,objMax):
             cntSet = np.delete(cntSet,cnt)
 
 
-    cv2.drawContours(mask,cntSet,-1,(0,255,0), 3)
+    cv2.drawContours(mask,cntSet,-1,(255,255,255), 1)
     cv2.imshow('mask',mask)
 
     if cv2.waitKey(0) & 0xFF == ord('q'):
@@ -141,7 +142,6 @@ def findCentroid(cnt):
 
 ##################################################################################################################################################
 
-
 resMin , resMax = getThresoldValue()
 global tcMin, tcMax
 tcMin , tcMax = getThresoldValue()
@@ -152,7 +152,6 @@ resources = locateResources(resMin , resMax)
 print resources
 
 ###locating town center
-
 
 
 ############################################################################################
