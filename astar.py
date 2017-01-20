@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import conquest_main 
-from conquest_main import getThresoldValue,locateObstacle,resources,locateMap
+from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter
 
 #tast
 #get frame size
@@ -109,7 +109,7 @@ def aStar(start, goal, grid):
                 openset.add(node)
     #Throw an exception if there is no path
     raise ValueError('No Path Found')
-def next_move(pacman,food,grid):
+def next_move(town_center,food,grid):
     #Convert all the points to instances of Node
     for x in xrange(len(grid)):
         for y in xrange(len(grid[x])):
@@ -132,42 +132,50 @@ mMin , mMax = getThresoldValue('map')
 map1 = locateMap(mMin , mMax)
 #print map1,"map"
 #grid created with default value one
-grid = np.ones((120,120),dtype=int)
+grid = np.ones((121,121),dtype=int)
 #pixel cordinaten of map(3m*3m)
 #print map1
 ########!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!not yet threshonded and founf contour of the arena 
 #pixel lenght of map
-map_y=map1[0][0][1]-map1[1][0][1]
+#print map1[1][0][1],map1[0][0][1]
+#print map1[2][0][0],map1[0][0][0]
+map_y=map1[1][0][1]-map1[0][0][1]
 map_x=map1[2][0][0]-map1[0][0][0]
 
 #dimension of each block of grid in terms of pixels... its in float
 pixels_per_block=[map_x/120.0,map_y/120.0]
-cordinates_obstacle=[[]]
+#print pixels_per_block,"pixels"
+cordinates_obstacle=[]
 #coordinates of obstacles....marking there boxes in grid with '%'
 for x in obstacles:
-    print x,x.shape
+    #print x,x.shape
     for i in range(x.shape[0]):
         a=int((x[i][0][0]-map1[0][0][0])/pixels_per_block[0])
         b=int((x[i][0][1]-map1[0][0][1])/pixels_per_block[1])
+        #print a,b,"a,b"
         cordinates_obstacle.append([a,b])
         grid[a][b]=0
 cordinates_food=[]
 cordinates_wood=[]
 #finding the box for food and wood in the grid through there centroid..... cordinate will be automatically sorted
-print resources,resources.shape
+#print resources,"res"
 for x in resources:
     if x[1]==1:
-        f_x=int((x[0]-map1[0][0][0])/pixels_per_block[0])
-        f_y=int((x[1]-map1[0][0][1])/pixels_per_block[1])
+        f_x=round((x[0][0]-map1[0][0][0])/pixels_per_block[0])
+        f_y=round((x[0][1]-map1[0][0][1])/pixels_per_block[1])
+        #print f_x,f_y
         cordinates_food.append([f_x,f_y])
     else:
-        w_x=int((x[0]-map1[0][0][0])/pixels_per_block[0])
-        w_y=int((x[1]-map1[0][0][1])/pixels_per_block[1])
+        w_x=round((x[0][0]-map1[0][0][0])/pixels_per_block[0])
+        w_y=round((x[0][1]-map1[0][0][1])/pixels_per_block[1])
         cordinates_wood.append([w_x,w_y])
 #town_center coordinates
-town_center[0]=int((tcCenter[0]-map1[0][0][0])/pixels_per_block[0])
-town_center[1]=int((tcCenter[1]-map1[0][0][1])/pixels_per_block[1])
-
+town_center=[0,0]
+town_center[0]=round((tcCenter[0]-map1[0][0][0])/pixels_per_block[0])
+town_center[1]=round((tcCenter[1]-map1[0][0][1])/pixels_per_block[1])
+#print cordinates_wood,"wood"
+#print cordinates_food,"food"
+#print town_center,"tc"
 #now we have to send each and every food and wood coordinates as goal one by one in the next move function
 #for case one as we reach a goal two time ... we'll remove it from the list ...as a safe gourd while searching for a particular goal we must also keep a check 
 #that by_mistake if bot steps on a unchecked food or wood ... led must blink and other measurements must change too
@@ -177,29 +185,10 @@ town_center[1]=int((tcCenter[1]-map1[0][0][1])/pixels_per_block[1])
 #for i in xrange(0, x):
     #grid.append(list(raw_input().strip()))
  
-next_move(town_center,goal, grid)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#next_move(town_center,goal, grid)
 
 #how to make contours line show, how to make grid show
-def listPathPoints1(start,end):
+'''def listPathPoints1(start,end):
     stx=start[0]
     sty=start[1]
     enx=end[0]
@@ -216,7 +205,7 @@ def listPathPoints1(start,end):
     while(i<d):
         l.append([int(stx+cos*i),int(sty+sin*i)])
         i=i+1
-    return l
+    return l'''
 
 
 
