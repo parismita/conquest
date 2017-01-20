@@ -63,7 +63,7 @@ def locateMap(mMin , mMax):
         if(p[i] == max(p)):
             a = i
         else:
-            a = p[len(p)-1]
+            a = len(p)-1
     poly = cv2.approxPolyDP(cntSet[a], 0.15 * p[a], True)
     #print poly,"poly"
     return poly
