@@ -53,16 +53,20 @@ def locateObstacle(oMin , oMax):
 ##################################################################################################################################################
 def locateMap(mMin , mMax):
     p = []
+    i=0
     mask, cntSet = detectContours(mMin , mMax)
     for cnt in cntSet:
         peri = cv2.arcLength(cnt, True)
-        poly = cv2.approxPolyDP(cnt, 0.15 * peri, True)
-        #print poly,"poly"
-        if len(poly)==4:
-            p.append((peri,poly))
-
-    print (p)
-    return cntSet
+        p.append(peri)
+        i = i + 1
+    for i in range(len(p)):
+        if(p[i] == max(p)):
+            a = i
+        else:
+            a = p[len(p)-1]
+    poly = cv2.approxPolyDP(cntSet[a], 0.15 * p[a], True)
+    #print poly,"poly"
+    return poly
 
 ##################################################################################################################################################
 
