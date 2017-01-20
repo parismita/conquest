@@ -18,7 +18,7 @@ def getThresoldValue(name):
     cv2.createTrackbar('vMax', name, 254, 255,nothing)
     cv2.createTrackbar('vMin', name, 0, 255,nothing)
     
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     
     while (True):
         ret,frame = cap.read()
@@ -96,7 +96,6 @@ def locateResources(resMin , resMax):
 ##################################################################################################################################################
 
 def distFromTC(res):
-    tcCenter = locateTC()
     if tcCenter[0] == -1:
         print "no tcCenter"
         dist = sys.maxint
@@ -107,7 +106,7 @@ def distFromTC(res):
 ##################################################################################################################################################
 
 def locateTC():
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     ret,frame = cap.read()
     hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     hsv = cv2.GaussianBlur(hsv, (5, 5), 0)
@@ -121,7 +120,7 @@ def locateTC():
 def detectContours(objMin,objMax):
     minCntArea = 50
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     ret,frame = cap.read()
     
     hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -165,11 +164,13 @@ def findCentroid(cnt):
 resMin , resMax = getThresoldValue('resources')
 global tcMin, tcMax
 tcMin , tcMax = getThresoldValue('town')
+global tcCenter
+tcCenter=locateTC()
 ##    bfMin , bfMin = getThresoldValue()
 ##    bbMin , bbMin = getThresoldValue()
 
 resources = locateResources(resMin , resMax)
-print resources
+#print resources
 
 ###locating town center
 
