@@ -9,14 +9,14 @@ def nothing(x):
 
 ##################################################################################################################################################
 
-def getThresoldValue():
-    cv2.namedWindow('Video')
-    cv2.createTrackbar('hMax', 'Video', 179, 179,nothing)
-    cv2.createTrackbar('hMin', 'Video', 0, 255,nothing)
-    cv2.createTrackbar('sMax', 'Video', 254, 255,nothing)
-    cv2.createTrackbar('sMin', 'Video', 0, 255,nothing)
-    cv2.createTrackbar('vMax', 'Video', 254, 255,nothing)
-    cv2.createTrackbar('vMin', 'Video', 0, 255,nothing)
+def getThresoldValue(name):
+    cv2.namedWindow(name)
+    cv2.createTrackbar('hMax', name, 179, 179,nothing)
+    cv2.createTrackbar('hMin', name, 0, 255,nothing)
+    cv2.createTrackbar('sMax', name, 254, 255,nothing)
+    cv2.createTrackbar('sMin', name, 0, 255,nothing)
+    cv2.createTrackbar('vMax', name, 254, 255,nothing)
+    cv2.createTrackbar('vMin', name, 0, 255,nothing)
     
     cap = cv2.VideoCapture(0)
     
@@ -25,15 +25,15 @@ def getThresoldValue():
         hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         hsv = cv2.GaussianBlur(hsv, (5, 5), 0)
 
-        hMin = cv2.getTrackbarPos('hMin','Video')
-        sMin = cv2.getTrackbarPos('sMin','Video')
-        vMin = cv2.getTrackbarPos('vMin','Video')
-        hMax = cv2.getTrackbarPos('hMax','Video')
-        sMax = cv2.getTrackbarPos('sMax','Video')
-        vMax = cv2.getTrackbarPos('vMax','Video')
+        hMin = cv2.getTrackbarPos('hMin',name)
+        sMin = cv2.getTrackbarPos('sMin',name)
+        vMin = cv2.getTrackbarPos('vMin',name)
+        hMax = cv2.getTrackbarPos('hMax',name)
+        sMax = cv2.getTrackbarPos('sMax',name)
+        vMax = cv2.getTrackbarPos('vMax',name)
 
         mask = cv2.inRange(hsv,(hMin,sMin,vMin),(hMax,sMax,vMax))
-        cv2.imshow('Video',mask)
+        cv2.imshow(name,mask)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             cap.release()
@@ -45,8 +45,21 @@ def getThresoldValue():
     MaxValues = np.array([hMax,sMax,vMax])
 
     return (minValues,MaxValues)
-#########################################################################################
+################################################################################################################################################
+def locateObstacle(oMin , oMax):
+    mask, cntSet = detectContours(oMin , oMax)
 
+    oCen = []
+
+    for cnt in cntSet:
+        centroid = findCentroid(cnt)
+        
+        peri = cv2.arcLength(cnt, True)
+        poly = cv2.approxPolyDP(cnt, 0.15 * peri, True)
+        o = [centroid]
+        oCen.append(o)
+
+    return oCen
 
 ##################################################################################################################################################
 
@@ -62,15 +75,16 @@ def locateResources(resMin , resMax):
         poly = cv2.approxPolyDP(cnt, 0.15 * peri, True)
 
         if len(poly)==4:
-            resType = 'f'
+            resType = 1
             res = [centroid,resType]
             resList.append(res)
         elif len(poly)==3:
-            resType = 'w'
+            resType = 2
             res = [centroid,resType]
             resList.append(res)
 
-    sorted(resList, key = distFromTC)
+    lis = sorted(resList, key = distFromTC)
+    return lis
             
 ##################################################################################################################################################
 
@@ -98,7 +112,7 @@ def locateTC():
 ##################################################################################################################################################
 
 def detectContours(objMin,objMax):
-    minCntArea = 20
+    minCntArea = 50
 
     cap = cv2.VideoCapture(0)
     ret,frame = cap.read()
@@ -108,7 +122,7 @@ def detectContours(objMin,objMax):
 
     mask = cv2.inRange(hsv,objMin,objMax)
 
-    (_, cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    (mask, cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
 
     for cnt in cntSet:
@@ -116,7 +130,7 @@ def detectContours(objMin,objMax):
             cntSet = np.delete(cntSet,cnt)
 
 
-    cv2.drawContours(mask,cntSet,-1,(0,255,0), 3)
+    cv2.drawContours(mask,cntSet,-1,(255,255,255), 1)
     cv2.imshow('mask',mask)
 
     if cv2.waitKey(0) & 0xFF == ord('q'):
@@ -141,15 +155,14 @@ def findCentroid(cnt):
 
 ##################################################################################################################################################
 
-
-resMin , resMax = getThresoldValue()
+resMin , resMax = getThresoldValue('resources')
 global tcMin, tcMax
-tcMin , tcMax = getThresoldValue()
+tcMin , tcMax = getThresoldValue('town')
 ##    bfMin , bfMin = getThresoldValue()
 ##    bbMin , bbMin = getThresoldValue()
 
 resources = locateResources(resMin , resMax)
-print resources
+#print resources
 
 ###locating town center
 
@@ -157,3 +170,4 @@ print resources
 
 ############################################################################################
 ############################################################################################
+
