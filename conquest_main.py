@@ -48,18 +48,21 @@ def getThresoldValue(name):
 ################################################################################################################################################
 def locateObstacle(oMin , oMax):
     mask, cntSet = detectContours(oMin , oMax)
+    return cntSet
 
-    oCen = []
-
+##################################################################################################################################################
+def locateMap(mMin , mMax):
+    p = []
+    mask, cntSet = detectContours(mMin , mMax)
     for cnt in cntSet:
-        centroid = findCentroid(cnt)
-        
         peri = cv2.arcLength(cnt, True)
         poly = cv2.approxPolyDP(cnt, 0.15 * peri, True)
-        o = [centroid]
-        oCen.append(o)
+        #print poly,"poly"
+        if len(poly)==4:
+            p.append((peri,poly))
 
-    return oCen
+    print (p)
+    return cntSet
 
 ##################################################################################################################################################
 
@@ -162,7 +165,7 @@ tcMin , tcMax = getThresoldValue('town')
 ##    bbMin , bbMin = getThresoldValue()
 
 resources = locateResources(resMin , resMax)
-#print resources
+print resources
 
 ###locating town center
 
@@ -170,3 +173,4 @@ resources = locateResources(resMin , resMax)
 
 ############################################################################################
 ############################################################################################
+
