@@ -59,7 +59,7 @@ class Node:
 def children(point,grid):
     x,y = point.point
     links = [grid[d[0]][d[1]] for d in [(x-1, y),(x,y - 1),(x,y + 1),(x+1,y)]]
-    return [link for link in links if link.value != '%']
+    return [link for link in links if link.value != 0]
 def manhattan(point,point2):
     return abs(point.point[0] - point2.point[0]) + abs(point.point[1]-point2.point[0])
 def aStar(start, goal, grid):
@@ -132,50 +132,50 @@ mMin , mMax = getThresoldValue('map')
 map1 = locateMap(mMin , mMax)
 #print map1,"map"
 #grid created with default value one
-grid = np.ones((121,121),dtype=int)
+grid = np.ones((120,120),dtype=int)
 #pixel cordinaten of map(3m*3m)
 #print map1
 ########!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!not yet threshonded and founf contour of the arena 
 #pixel lenght of map
-#print map1[1][0][1],map1[0][0][1]
-#print map1[2][0][0],map1[0][0][0]
-map_y=map1[1][0][1]-map1[0][0][1]
-map_x=map1[2][0][0]-map1[0][0][0]
+print map1[1][0][1],map1[0][0][1]
+print map1[2][0][0],map1[0][0][0]
+map_y=map1[2][0][1]-map1[0][0][1]
+map_x=map1[0][0][0]-map1[1][0][0]
 
 #dimension of each block of grid in terms of pixels... its in float
 pixels_per_block=[map_x/120.0,map_y/120.0]
-#print pixels_per_block,"pixels"
-cordinates_obstacle=[]
+print pixels_per_block,"pixels"
+cordinates_obstacle=[[]]
 #coordinates of obstacles....marking there boxes in grid with '%'
 for x in obstacles:
-    #print x,x.shape
+    print x,x.shape
     for i in range(x.shape[0]):
-        a=int((x[i][0][0]-map1[0][0][0])/pixels_per_block[0])
-        b=int((x[i][0][1]-map1[0][0][1])/pixels_per_block[1])
-        #print a,b,"a,b"
+        a=round(abs((x[i][0][0]-map1[0][0][0])/pixels_per_block[0]))
+        b=round(abs((x[i][0][1]-map1[0][0][1])/pixels_per_block[1]))
+        print a,b,"a,b"
         cordinates_obstacle.append([a,b])
         grid[a][b]=0
 cordinates_food=[]
 cordinates_wood=[]
 #finding the box for food and wood in the grid through there centroid..... cordinate will be automatically sorted
-#print resources,"res"
+print resources,"res"
 for x in resources:
     if x[1]==1:
-        f_x=round((x[0][0]-map1[0][0][0])/pixels_per_block[0])
-        f_y=round((x[0][1]-map1[0][0][1])/pixels_per_block[1])
-        #print f_x,f_y
+        f_x=round((x[0][0]-map1[1][0][0])/pixels_per_block[0])
+        f_y=round((x[0][1]-map1[1][0][1])/pixels_per_block[1])
+        print f_x,f_y
         cordinates_food.append([f_x,f_y])
     else:
-        w_x=round((x[0][0]-map1[0][0][0])/pixels_per_block[0])
-        w_y=round((x[0][1]-map1[0][0][1])/pixels_per_block[1])
+        w_x=round((x[0][0]-map1[1][0][0])/pixels_per_block[0])
+        w_y=round((x[0][1]-map1[1][0][1])/pixels_per_block[1])
         cordinates_wood.append([w_x,w_y])
 #town_center coordinates
 town_center=[0,0]
-town_center[0]=round((tcCenter[0]-map1[0][0][0])/pixels_per_block[0])
-town_center[1]=round((tcCenter[1]-map1[0][0][1])/pixels_per_block[1])
-#print cordinates_wood,"wood"
-#print cordinates_food,"food"
-#print town_center,"tc"
+town_center[0]=round((tcCenter[0]-map1[1][0][0])/pixels_per_block[0])
+town_center[1]=round((tcCenter[1]-map1[1][0][1])/pixels_per_block[1])
+print cordinates_wood,"wood"
+print cordinates_food,"food"
+print town_center,"tc"
 #now we have to send each and every food and wood coordinates as goal one by one in the next move function
 #for case one as we reach a goal two time ... we'll remove it from the list ...as a safe gourd while searching for a particular goal we must also keep a check 
 #that by_mistake if bot steps on a unchecked food or wood ... led must blink and other measurements must change too
