@@ -51,23 +51,33 @@ def locateObstacle(oMin , oMax):
     return cntSet
 
 ##################################################################################################################################################
-def locateMap(mMin , mMax):
+'''def locateMap(mMin , mMax):
     p = []
     i=0
+    a=0
     mask, cntSet = detectContours(mMin , mMax)
     for cnt in cntSet:
         peri = cv2.arcLength(cnt, True)
         p.append(peri)
         i = i + 1
+        p.remove(p[len(p)-1])
     for i in range(len(p)):
         if(p[i] == max(p)):
             a = i
-        else:
-            a = len(p)-1
     poly = cv2.approxPolyDP(cntSet[a], 0.15 * p[a], True)
-    #print poly,"poly"
+    print poly,"poly"
+    return poly'''
+def locateMap(mMin , mMax):
+    peri_max=0
+    mask, cntSet = detectContours(mMin , mMax)
+    for cnt in cntSet:
+        peri = cv2.arcLength(cnt, True)
+        if(peri_max<peri):
+            peri_max=peri
+            cnt_max=cnt
+    poly = cv2.approxPolyDP(cnt_max, 0.15 * peri_max, True)
+    print poly,"poly"
     return poly
-
 ##################################################################################################################################################
 
 def locateResources(resMin , resMax):
@@ -100,8 +110,8 @@ def distFromTC(res):
         print "no tcCenter"
         dist = sys.maxint
     resCenter = res[0]
-    dist = ((resCenter[0]-tcCenter[0])**2 + (resCenter[0] - tcCenter[0])**2)**0.5
-    return (dist*2)
+    dist = (resCenter[0]-tcCenter[0])**2 + (resCenter[0] - tcCenter[0])**2
+    return (dist)
 
 ##################################################################################################################################################
 
