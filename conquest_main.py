@@ -171,11 +171,13 @@ def findCentroid(cnt):
 
 ##################################################################################################################################################
 
-resMin , resMax = getThresoldValue('resources')
+
 global tcMin, tcMax
 tcMin , tcMax = getThresoldValue('town')
 global tcCenter
 tcCenter=locateTC()
+resMin , resMax = getThresoldValue('resources')
+
 ##    bfMin , bfMin = getThresoldValue()
 ##    bbMin , bbMin = getThresoldValue()
 
