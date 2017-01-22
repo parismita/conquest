@@ -148,7 +148,7 @@ for i in range(120):
 print map1[1][0][1],map1[0][0][1]
 print map1[2][0][0],map1[0][0][0]
 map_y=map1[2][0][1]-map1[0][0][1]
-map_x=map1[0][0][0]-map1[1][0][0]
+map_x=map1[2][0][0]-map1[1][0][0]
 
 #dimension of each block of grid in terms of pixels... its in float
 pixels_per_block=[map_x/120.0,map_y/120.0]
