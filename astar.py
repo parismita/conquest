@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 import conquest_main 
-from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter
+from copy import deepcopy
+from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter,pid,run,locateBot,findError
 
 #tast
 #get frame size
@@ -38,10 +39,10 @@ from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tc
 #xprint np.shape(a)
 
 '''while 1:
-	img = capture.read()
-	frame_size = img[1].shape
-	print frame_size
-	cv2.waitKey(1)'''
+    img = capture.read()
+    frame_size = img[1].shape
+    print frame_size
+    cv2.waitKey(1)'''
 
 #############################################################################################3
 #                         A star algo
@@ -123,24 +124,52 @@ def next_move(town_center,food,grid):
         grid[x][y].value=2
         print x,y
     grid2 = [[grid[x][y].value for x in range(120)] for y in range(120)]
+    return grid2
     
+def convert(grid,pixel_no,start):
+    pixel = []
+    for i in range(120):
+        for j in range(120):
+            if grid[i][j] == 2:
+                x = i*pixel_no[0] + start[0]
+                y = j*pixel_no[1] + start[1]
+                pixel.append([x,y])
+    return pixel
 
+def smooth(path, weight_data = 0.5, weight_smooth = 0.1, tolerance = 0.000001):
+    # Make a deep copy of path into newpath
+    newpath = [[0 for row in range(len(path[0]))] for col in range(len(path))]
+    for i in range(len(path)):
+        for j in range(len(path[0])):
+            newpath[i][j] =path[i][j]
+
+    change = tolerance
+    while change >= tolerance:
+        change = 0.0
+        for i in range(1,len(path)-1):
+            for j in range(len(path[0])):
+                aux = newpath[i][j]
+                newpath[i][j] = newpath[i][j] + weight_data*(path[i][j] - newpath[i][j])
+                newpath[i][j] = newpath[i][j] + weight_smooth*(newpath[i-1][j] + newpath[i+1][j] - 2*newpath[i][j])
+                change = change + abs(aux - newpath[i][j])
+    return newpath
 ############################################################################
 ############################################################################################3
 #print resources[0][1]
 
-oMin , oMax = getThresoldValue('obstacle')
-obstacles = locateObstacle(oMin , oMax)
-mMin , mMax = getThresoldValue('map')
+oMin , oMax,mask = getThresoldValue('obstacle')
+obstacles = mask
+mMin , mMax, _ = getThresoldValue('map')
 map1 = locateMap(mMin , mMax)
+start = [map1[1][0][0],map1[1][0][1]]
 #print map1,"map"
 #grid created with default value one
 grid = [[1 for _ in range(120)] for _ in range(120)]
 for i in range(120):
-	grid[i][0]=0
-	grid[0][i]=0
-	grid[119][i]=0
-	grid[i][119]=0
+    grid[i][0]=0
+    grid[0][i]=0
+    grid[119][i]=0
+    grid[i][119]=0
 #pixel cordinaten of map(3m*3m)
 #print map1
 ########!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!not yet threshonded and founf contour of the arena 
@@ -155,14 +184,16 @@ pixels_per_block=[map_x/120.0,map_y/120.0]
 print pixels_per_block,"pixels"
 cordinates_obstacle=[[]]
 #coordinates of obstacles....marking there boxes in grid with '%'
-for x in obstacles:
-    print x,x.shape
-    for i in range(x.shape[0]):
-        a=int(round(abs((x[i][0][0]-map1[1][0][0])/pixels_per_block[0])))
-        b=int(round(abs((x[i][0][1]-map1[1][0][1])/pixels_per_block[1])))
-        print a,b,"a,b"
-        cordinates_obstacle.append([a,b])
-        grid[a][b]=0
+for x in range(len(obstacles)):
+    for y in range(len(obstacles[x])):
+        #print obstacles[x][y]
+        if obstacles[x][y]==255:
+            print "fuck2"
+            a1=int(round(abs((x-map1[1][0][0])/pixels_per_block[0])))
+            b=int(round(abs((y-map1[1][0][1])/pixels_per_block[1])))
+            print a1,b,"a,b"
+            cordinates_obstacle.append([a1,b])
+            grid[a1][b]=0
 cordinates_food=[]
 cordinates_wood=[]
 #finding the box for food and wood in the grid through there centroid..... cordinate will be automatically sorted
@@ -193,10 +224,9 @@ print town_center,"tc",tcCenter
 #for i in xrange(0, x):
     #grid.append(list(raw_input().strip()))
  
-next_move(town_center,cordinates_food[0], grid)
 
 #how to make contours line show, how to make grid show
-'''def listPathPoints1(start,end):
+def listPathPoints1(start,end):
     stx=start[0]
     sty=start[1]
     enx=end[0]
@@ -213,9 +243,28 @@ next_move(town_center,cordinates_food[0], grid)
     while(i<d):
         l.append([int(stx+cos*i),int(sty+sin*i)])
         i=i+1
-    return l'''
+    return l
 
 
+for x in cordinates_wood:
+    full_path_points=[]
+    reverse_path=[]
+    grid2=next_move(town_center,cordinates_food[0], grid)
+    path=convert(grid2,pixels_per_block,start)
+    for x in range(len(path)-1):
+        full_path_points=full_path_points+(listPathPoints1(path[x],path[x+1]))
+    path=smooth(full_path_points)
+    for i in path:
+        cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)
+        run(i)
+        
+    path.reverse() 
+    for i in path:
+	    cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)
+	    run(i)   
+    cv2.imshow("newewrsdaf",obstacles)
+
+    
 
 
 
