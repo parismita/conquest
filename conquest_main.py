@@ -162,11 +162,8 @@ def findCentroid(cnt):
     return (np.array([cx,cy]))
 
 ##################################################################################################################################################
-global Ki,Kd,Kp,last_time,integrat,prev_err
-integrat=0
-last_time=0
+
 def pid(error):
-    prev_err=0
     integrat = integrat + error
     derivative = error - prev_err
     cur_time = time.time()
@@ -178,7 +175,7 @@ def pid(error):
 #####################################################################################################################################################
 
 def run(target) :
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     while(True):
         ret,frame = cap.read()
         hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -225,6 +222,10 @@ def findError(botCenter,botHead,target):
 
 ####################################################################################################################################################################
 
+global Ki,Kd,Kp,last_time,integrat,prev_err
+integrat=0
+last_time=0
+prev_err=0
 global tcMin, tcMax
 tcMin , tcMax, _ = getThresoldValue('town')
 global tcCenter
