@@ -194,26 +194,20 @@ for x in range(len(obstacles)):
             print a1,b,"a,b"
             cordinates_obstacle.append([a1,b])
             grid[a1][b]=0
-cordinates_food=[]
-cordinates_wood=[]
+cordinates_res=[]
 #finding the box for food and wood in the grid through there centroid..... cordinate will be automatically sorted
 print resources,"res"
 for x in resources:
-    if x[1]==1:
         f_x=int(round(abs((x[0][0]-map1[1][0][0])/pixels_per_block[0])))
         f_y=int(round(abs((x[0][1]-map1[1][0][1])/pixels_per_block[1])))
         print f_x,f_y
-        cordinates_food.append([f_x,f_y])
-    else:
-        w_x=int(round((x[0][0]-map1[1][0][0])/pixels_per_block[0]))
-        w_y=int(round((x[0][1]-map1[1][0][1])/pixels_per_block[1]))
-        cordinates_wood.append([w_x,w_y])
+        cordinates_res.append([f_x,f_y])
+    
 #town_center coordinates
 town_center=[0,0]
 town_center[0]=int(round(abs((tcCenter[0]-map1[1][0][0])/pixels_per_block[0])))
 town_center[1]=int(round(abs((tcCenter[1]-map1[1][0][1])/pixels_per_block[1])))
-print cordinates_wood,"wood"
-print cordinates_food,"food"
+print cordinates_res,"Resources"
 print town_center,"tc",tcCenter
 #now we have to send each and every food and wood coordinates as goal one by one in the next move function
 #for case one as we reach a goal two time ... we'll remove it from the list ...as a safe gourd while searching for a particular goal we must also keep a check 
