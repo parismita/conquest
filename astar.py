@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import conquest_main 
-from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter,pid,run,locateBot,findError
+from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter,pid,run,locateBot,findError,Ki,Kd,Kp,last_time,integrat,prev_err
 
 #tast
 #get frame size
@@ -189,8 +189,7 @@ for x in range(len(obstacles)):
         if obstacles[x][y]==255:
             print "fuck2"
             a1=int(round(abs((x-map1[1][0][0])/pixels_per_block[0])))
-            b=int(round(abs((y-map1[1][0][1])/pixels_per_block[1])))
-            print a1,b,"a,b"
+            b=int(round(abs((y-map1[1][0][1])/pixels_per_block[1])))            print a1,b,"a,b"
             cordinates_obstacle.append([a1,b])
             grid[a1][b]=0
 cordinates_res=[]
@@ -200,9 +199,7 @@ for x in resources:
         f_x=int(round(abs((x[0][0]-map1[1][0][0])/pixels_per_block[0])))
         f_y=int(round(abs((x[0][1]-map1[1][0][1])/pixels_per_block[1])))
         print f_x,f_y
-        cordinates_res.append([f_x,f_y])
-    
-#town_center coordinates
+        cordinates_res.append([f_x,f_y])    #town_center coordinates
 town_center=[0,0]
 town_center[0]=int(round(abs((tcCenter[0]-map1[1][0][0])/pixels_per_block[0])))
 town_center[1]=int(round(abs((tcCenter[1]-map1[1][0][1])/pixels_per_block[1])))
@@ -212,10 +209,9 @@ print town_center,"tc",tcCenter
 #for case one as we reach a goal two time ... we'll remove it from the list ...as a safe gourd while searching for a particular goal we must also keep a check 
 #that by_mistake if bot steps on a unchecked food or wood ... led must blink and other measurements must change too
 
-
     
 #for i in xrange(0, x):
-    #grid.append(list(raw_input().strip()))
+v    #grid.append(list(raw_input().strip()))
  
 
 #how to make contours line show, how to make grid show
@@ -239,16 +235,22 @@ def listPathPoints1(start,end):
     return l
 
 
-for x in cordinates_wood:
+for x in cordinates_res:
     full_path_points=[]
     reverse_path=[]
-    grid2=next_move(town_center,cordinates_food[0], grid)
+    grid2=next_move(town_center,x, grid)
     path=convert(grid2,pixels_per_block,start)
     for x in range(len(path)-1):
         full_path_points=full_path_points+(listPathPoints1(path[x],path[x+1]))
     path=smooth(full_path_points)
     for i in path:
-        cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)
+        cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)_
+	ki=1
+	kd=1
+	kp=1
+	prev_err=0
+	integrat=0
+	last_time=0
         run(i)
         
     path.reverse() 
