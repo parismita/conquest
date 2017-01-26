@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import conquest_main 
-from copy import deepcopy
 from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter,pid,run,locateBot,findError
 
 #tast
