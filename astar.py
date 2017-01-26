@@ -1,7 +1,8 @@
-import cv2
+import cv2,math
 import numpy as np
 import conquest_main 
-from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter,pid,run,locateBot,findError,Ki,Kd,Kp,last_time,integrat,prev_err
+from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter,pid,run,locateBot,findError
+from conquest_main import Ki,Kd,Kp,last_time,integrat,prev_err
 
 #tast
 #get frame size
@@ -189,7 +190,8 @@ for x in range(len(obstacles)):
         if obstacles[x][y]==255:
             print "fuck2"
             a1=int(round(abs((x-map1[1][0][0])/pixels_per_block[0])))
-            b=int(round(abs((y-map1[1][0][1])/pixels_per_block[1])))            print a1,b,"a,b"
+            b=int(round(abs((y-map1[1][0][1])/pixels_per_block[1])))
+            print a1,b,"a,b"
             cordinates_obstacle.append([a1,b])
             grid[a1][b]=0
 cordinates_res=[]
@@ -244,20 +246,17 @@ for x in cordinates_res:
         full_path_points=full_path_points+(listPathPoints1(path[x],path[x+1]))
     path=smooth(full_path_points)
     for i in path:
-        cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)_
-	ki=1
-	kd=1
-	kp=1
-	prev_err=0
-	integrat=0
-	last_time=0
+        cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)
+        prev_err=0
+        integrat=0
+        last_time=0
         run(i)
         
     path.reverse() 
     for i in path:
-	    cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)
-	    run(i)   
-    cv2.imshow("newewrsdaf",obstacles)
+        cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)
+        run(i)   
+    cv2.imshow("newecwrsdaf",obstacles)
 
     
 
