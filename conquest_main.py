@@ -101,7 +101,7 @@ def distFromTC(res):
         dist = sys.maxint
     resCenter = res[0]
     dist = (resCenter[0]-tcCenter[0])**2 + (resCenter[0] - tcCenter[0])**2
-    if res[1] == 2:
+    if res[1] == 1:
         dist = dist*2
     return (dist)
 
