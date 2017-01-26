@@ -1,8 +1,8 @@
 import cv2,math
 import numpy as np
-import conquest_main 
+import conquest_main
+import time 
 from conquest_main import getThresoldValue,locateObstacle,resources,locateMap,tcCenter,pid,run,locateBot,findError
-from conquest_main import Ki,Kd,Kp,last_time,integrat,prev_err
 
 #tast
 #get frame size
@@ -55,11 +55,19 @@ class Node:
         self.H = 0
         self.G = 0
     def move_cost(self,other):
-        return 0 if self.value == '0' else 1
+        return 0 if self.value == 0 else 1
         
 def children(point,grid):
     x,y = point.point
-    links = [grid[d[0]][d[1]] for d in [(x-1, y),(x,y - 1),(x,y + 1),(x+1,y)]]
+    if(x<119 and y<119):
+        links = [grid[d[0]][d[1]] for d in [(x-1, y),(x,y - 1),(x,y + 1),(x+1,y)]]
+    elif(x==119 and y!=119):
+        links = [grid[d[0]][d[1]] for d in [(x-1, y),(x,y - 1),(x,y + 1),]]
+    elif(y==119 and x!=119):
+        links = [grid[d[0]][d[1]] for d in [(x-1, y),(x,y - 1),(x+1,y)]]
+    elif(x==119 and y==119):
+        links = [grid[d[0]][d[1]] for d in [(x-1, y),(x,y - 1)]]
+    #print links[0].value
     return [link for link in links if link.value != 0]
 def manhattan(point,point2):
     return abs(point.point[0] - point2.point[0]) + abs(point.point[1]-point2.point[0])
@@ -87,6 +95,7 @@ def aStar(start, goal, grid):
         openset.remove(current)
         #Add it to the closed set
         closedset.add(current)
+        #print "current",current.point
         #Loop through the node's children/siblings
         for node in children(current,grid):
             #If it is already in the closed set, skip it
@@ -122,7 +131,7 @@ def next_move(town_center,food,grid):
     for node in path:
         x, y = node.point
         grid[x][y].value=2
-        print x,y
+        print x,y,"path"
     grid2 = [[grid[x][y].value for x in range(120)] for y in range(120)]
     return grid2
     
@@ -213,7 +222,7 @@ print town_center,"tc",tcCenter
 
     
 #for i in xrange(0, x):
-v    #grid.append(list(raw_input().strip()))
+#grid.append(list(raw_input().strip()))
  
 
 #how to make contours line show, how to make grid show
@@ -246,19 +255,14 @@ for x in cordinates_res:
         full_path_points=full_path_points+(listPathPoints1(path[x],path[x+1]))
     path=smooth(full_path_points)
     for i in path:
-        cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)
-        prev_err=0
-        integrat=0
-        last_time=0
+        cv2.circle(obstacles,(int(i[0]),int(i[1])),5,255,3)
         run(i)
-        
-    path.reverse() 
+    path.reverse()
     for i in path:
-        cv2.circle(obstacles,(i[0],i[1]),3,(127,127,127),1)
-        run(i)   
-    cv2.imshow("newecwrsdaf",obstacles)
-
-    
-
-
-
+        run(i)
+    while(True):
+        cv2.imshow("newecwrsdaf",obstacles)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            cv2.destroyAllWindows()
+            print ("Success")
+            break
