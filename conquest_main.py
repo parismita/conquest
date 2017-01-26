@@ -1,9 +1,16 @@
 import numpy as np
 import cv2
-import math,sys
-import pyserial as ser
-
+import math,sys     
+import serial as ser
+import time
 ##################################################################################################################################################
+global Ki, Kd, Kp, last_time, integrat, prev_err
+Ki=1
+Kd=1
+Kp=1
+integrat=0
+last_time=0
+prev_err=0
 
 def nothing(x):
     pass
@@ -163,31 +170,33 @@ def findCentroid(cnt):
 
 ##################################################################################################################################################
 
-def pid(error):
+def pid(error,integrat,last_time,prev_err,Ki = 1,Kp=1,Kd=1):
     integrat = integrat + error
     derivative = error - prev_err
     cur_time = time.time()
     output=error*Kp + (Kd*derivative/(cur_time-last_time)) + (Ki*integrat*(cur_time-last_time))
     last_time=cur_time
     prev_err=error
-    return output
+    return output,integrat,last_time,prev_err
 
 #####################################################################################################################################################
 
 def run(target) :
     cap = cv2.VideoCapture(1)
+    integrat=0
+    last_time=0
+    prev_err=0
     while(True):
         ret,frame = cap.read()
         hsv  = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         hsv = cv2.GaussianBlur(hsv, (5, 5), 0)
-        botCenter, error ,bothead = locateBot(hsv,target)
-        output = pid(error)
+        botCentre, error ,bothead = locateBot(hsv,target)
+        output,integrat,last_time,prev_err = pid(error,integrat,last_time,prev_err)
         output1=str(bothead)+str(output)
-        if(np.linalg.norm(botCenter - target) < 15):
+        if(np.linalg.norm(botCentre - target) < 15):
             output1 = output1 + 'r'
             break
-        x=ser.outWaiting()
-        time.sleep(2*x)
+        reset_output_buffer()
         ser.write(output1)
 
 ######################################################################################################################################################
@@ -197,43 +206,42 @@ def locateBot(img,target):
     mask2 = cv2.inRange(img,bbMin,bbMax)
     botFront = findCentroid(mask1)
     botBack = findCentroid(mask2)
+    botCentre = botFront
     botCentre = np.add(botFront,botBack)/2
     d1 = np.linalg.norm(botFront - target)  
     d2 = np.linalg.norm(botBack - target)
     if(d1 < d2):
-        error = findError(botCenter,botFront, target)
-        return botCenter,error,'f'
+        error = findError(botCentre,botFront, target)
+        return botCentre,error,'f'
     else:
-        error = findError(botCenter,botBack, target)
-        return botCenter,error,'b'
+        error = findError(botCentre,botBack, target)
+        return botCentre,error,'b'
 
 ########################################################################################################################################################
 
-def findError(botCenter,botHead,target):
+def findError(botCentre,botFront,target):
     a = np.array([1,0])
-    bot_drn = botFront - botCenter
-    target_drn = target - botCenter
+    bot_drn = botFront - botCentre
+    target_drn = target - botCentre
     cosine_angle1 = np.dot(bot_drn, a)/(np.linalg.norm(bot_drn)*np.linalg.norm(a))
     cosine_angle2 = np.dot(a, target_drn)/(np.linalg.norm(a)*np.linalg.norm(target_drn))
-    angle1 = np.degrees(arccos(cosine_angle1))
-    angle2 = np.degrees(arccos(cosine_angle2))
+    angle1 = np.degrees(np.arccos(cosine_angle1))
+    angle2 = np.degrees(np.arccos(cosine_angle2))
     angle_dif = angle1 - angle2
     return angle_dif
 
 ####################################################################################################################################################################
 
-global Ki,Kd,Kp,last_time,integrat,prev_err
-integrat=0
-last_time=0
-prev_err=0
+
 global tcMin, tcMax
 tcMin , tcMax, _ = getThresoldValue('town')
 global tcCenter
 tcCenter=locateTC()
 resMin , resMax, _ = getThresoldValue('resources')
+ser.Serial('/dev/ttyACM0')
 
-##    bfMin , bfMin = getThresoldValue()
-##    bbMin , bbMin = getThresoldValue()
+bfMin , bfMax,_ = getThresoldValue('bot front')
+bbMin , bbMax ,_ = getThresoldValue('bot end')
 
 resources = locateResources(resMin , resMax)
 
@@ -242,7 +250,7 @@ resources = locateResources(resMin , resMax)
 ###locating town center
 
 
-
+    
 ############################################################################################
 ############################################################################################
 
