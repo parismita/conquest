@@ -3,6 +3,7 @@ import cv2
 import math,sys     
 import serial as ser
 import time
+
 ##################################################################################################################################################
 global Ki, Kd, Kp, last_time, integrat, prev_err
 Ki=1
@@ -102,8 +103,8 @@ def locateResources(resMin , resMax):
 ##################################################################################################################################################
 
 def distFromTC(res):
-    print res
-    if tcCenter[0] == -1:
+    tcCenter = locateTC()
+    if tcCenter == [-1,-1]:
         print "no tcCenter"
         dist = sys.maxint
     resCenter = res[0]
@@ -138,6 +139,7 @@ def detectContours(objMin,objMax):
     mask = cv2.inRange(hsv,objMin,objMax)
 
     (mask, cntSet, _) = cv2.findContours(mask.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
 
 
     for cnt in cntSet:
@@ -232,6 +234,7 @@ def findError(botCentre,botFront,target):
 
 ####################################################################################################################################################################
 
+###locating town center
 
 global tcMin, tcMax
 tcMin , tcMax, _ = getThresoldValue('town')
